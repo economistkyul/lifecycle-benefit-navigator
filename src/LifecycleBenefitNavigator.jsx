@@ -31,11 +31,21 @@ const INCOME_LEVELS = [
   { id: "unknown", label: "잘 모르겠어요", rank: 3, ratio: null },
 ];
 
+/* 직업: 혜택 체계가 별도로 존재하는 직업만 선택지로 제공 — 그 외는 '해당 없음(기타)' */
+const JOBS = [
+  { id: "none", label: "해당 없음 · 기타" },
+  { id: "farmer", label: "농업인" },
+  { id: "fisher", label: "어업인" },
+  { id: "forester", label: "임업인" },
+  { id: "artist", label: "문화예술인" },
+  { id: "biz", label: "자영업·소상공인" },
+];
+const JOB_TAG = { farmer: "농업인", fisher: "어업인", forester: "임업인", artist: "예술인" };
+
 const TAG_GROUPS = [
   { group: "가족·양육", items: ["임신 중", "자녀 양육", "한부모", "다자녀"] },
   { group: "일·배움", items: ["대학(원) 재학", "재직 중", "구직 중"] },
   { group: "주거", items: ["무주택"] },
-  { group: "직업 분야", items: ["농업인", "어업인", "예술인"] },
   { group: "특별 대상", items: ["자립준비청년(보호종료)", "북한이탈주민", "이산가족", "다문화가족", "재외동포", "출소(예정)자", "범죄 피해자"] },
 ];
 
@@ -203,6 +213,7 @@ const BENEFITS = [
   { id: 191, name: "장애인기업 지원(장애인기업확인 등)", ministry: "중소벤처기업부", audience: "biz", disability: "any", sizes: ["예비창업자", "소상공인", "중소기업"], ageMin: 19, ageMax: 100, incomeCap: 5, vtype: "grant", valMin: 100, valMax: 3000, amount: "공공판로·창업·자금 우대", desc: "장애인이 소유·경영하는 기업의 창업·판로·경영 종합 지원", channel: "장애인기업종합지원센터", portal: "정부24", budget: "장애인기업육성 138억원 ('26 열린재정)", src: true, law: "장애인기업활동촉진법", brackets: [["장애인기업 확인서", "공공기관 의무구매 1% 판로 우대"], ["창업 지원", "창업점포·사업화 자금(예시)"], ["경영 지원", "자금·기술 컨설팅"]] },
   { id: 192, name: "중소기업협동조합 육성", ministry: "중소벤처기업부", audience: "biz", sizes: ["소상공인", "중소기업"], ageMin: 19, ageMax: 100, incomeCap: 5, vtype: "grant", valMin: 0, valMax: 0, amount: "공동사업 지원", desc: "동종 업종 협동조합 결성 시 공동구매·공동판매 등 공동사업 지원", channel: "중소기업중앙회", portal: "정부24", budget: "175억원 ('26 열린재정)", src: true, law: "중소기업협동조합법", brackets: [["공동사업", "공동구매·물류·판로 지원"], ["조합 결성", "설립 컨설팅"]] },
   { id: 200, name: "주거안정장학금", ministry: "교육부", ageMin: 19, ageMax: 39, incomeCap: 1, reqTags: ["대학(원) 재학"], vtype: "cash", valMin: 240, valMax: 240, amount: "월 20만원", desc: "원거리 대학 진학 기초·차상위 대학생의 주거비 부담 경감", channel: "한국장학재단", portal: "한국장학재단", budget: "175억원 ('26 사업설명자료 검증)", src: true, law: "한국장학재단 설립 등에 관한 법률", brackets: [["대상", "원거리 진학 기초·차상위 대학생"], ["지원", "월 20만원 주거비"]] },
+  { id: 210, name: "임업직불금", ministry: "산림청", ageMin: 19, ageMax: 100, incomeCap: 5, reqTags: ["임업인"], vtype: "cash", valMin: 130, valMax: 500, amount: "소규모임가 130만원 등", desc: "임야 대상 임업·산림 공익직불 (농업 공익직불의 산림판)", channel: "지자체 산림부서·산림청", portal: "정부24", budget: "산림청 파일 반영 대기 (예시, 약 600억원 규모)", law: "임업·산림 공익직불법", brackets: [["소규모임가 직불", "가구당 연 130만원(예시)"], ["면적직불", "임야 면적 구간별 단가(예시)"], ["요건", "임야 소재 임업경영체 등록"]] },
   { id: 33, name: "해산·장제급여", ministry: "보건복지부", ageMin: 0, ageMax: 100, incomeCap: 0, vtype: "cash", valMin: 70, valMax: 80, valNote: "일시금", amount: "해산 70만·장제 80만원", desc: "수급자 출산 시 해산급여, 사망 시 장제급여 — 탄생부터 삶의 마지막까지", channel: "행정복지센터", portal: "복지로", budget: "519억원 ('26 열린재정·사업설명자료 검증)", src: true, law: "국민기초생활보장법", brackets: [["해산급여 (출산 시)", "70만원 ('26 2-1 검증)"], ["장제급여 (사망 시)", "1구당 80만원 ('26 2-1 검증)"]] },
 ];
 
@@ -244,6 +255,7 @@ export default function LifecycleBenefitNavigator() {
   const [income, setIncome] = useState("mid100");
   const [household, setHousehold] = useState(1);
   const [childCount, setChildCount] = useState(0);
+  const [job, setJob] = useState("none");
   const [disability, setDisability] = useState("none");
   const [vet, setVet] = useState("none");
   const [mil, setMil] = useState("none");
@@ -295,6 +307,7 @@ export default function LifecycleBenefitNavigator() {
   const tagsEff = [...tags];
   if (childCount >= 1 && !tagsEff.includes("자녀 양육")) tagsEff.push("자녀 양육");
   if (childCount >= 2 && !tagsEff.includes("다자녀")) tagsEff.push("다자녀");
+  if (JOB_TAG[job] && !tagsEff.includes(JOB_TAG[job])) tagsEff.push(JOB_TAG[job]);
 
   const matchesProfile = (b) => {
     if ((b.audience || "personal") !== audience) return false;
@@ -330,7 +343,7 @@ export default function LifecycleBenefitNavigator() {
     return true;
   };
 
-  const profileMatched = useMemo(() => BENEFITS.filter(matchesProfile), [income, tags, childCount, gender, disability, vet, mil, region, audience, bizSize, bizTags]);
+  const profileMatched = useMemo(() => BENEFITS.filter(matchesProfile), [income, tags, childCount, job, gender, disability, vet, mil, region, audience, bizSize, bizTags]);
   const nowEligible = profileMatched.filter((b) => age >= b.ageMin && age <= b.ageMax);
   const upcoming = profileMatched.filter((b) => b.ageMin > age).sort((a, b) => a.ageMin - b.ageMin);
   const ministries = new Set(nowEligible.map((b) => b.ministry));
@@ -391,7 +404,7 @@ export default function LifecycleBenefitNavigator() {
 
       <header style={{ padding: "28px 20px 18px", maxWidth: 860, margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-          <span style={{ fontSize: 11, letterSpacing: 2, background: "#22303C", color: "#fff", padding: "3px 8px", borderRadius: 4 }}>DEMO v3.4</span>
+          <span style={{ fontSize: 11, letterSpacing: 2, background: "#22303C", color: "#fff", padding: "3px 8px", borderRadius: 4 }}>DEMO v3.5</span>
           <span style={{ fontSize: 12, color: "#7A8880" }}>예시 데이터 · 실제 요건과 다를 수 있음</span>
           <button onClick={() => setBigText(!bigText)}
             style={{ marginLeft: "auto", fontSize: 12, fontWeight: 800, padding: "4px 10px", borderRadius: 999, border: "1px solid #C9D2CE", background: bigText ? "#22303C" : "#fff", color: bigText ? "#fff" : "#5B6A63", cursor: "pointer" }}>
@@ -539,6 +552,24 @@ export default function LifecycleBenefitNavigator() {
               </button>
             ))}
           </div>
+
+          <div className="flabel" style={{ marginBottom: 2 }}>직업 (해당하는 경우만)</div>
+          <div style={{ fontSize: 11.5, color: "#7A8880", marginBottom: 8 }}>
+            별도 지원 체계가 있는 직업만 표시됩니다 — 회사원·공무원 등은 '해당 없음'을 선택하세요 (재직·구직은 아래 상황에서)
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 6 }}>
+            {JOBS.map((j) => (
+              <button key={j.id} className={`chip ${job === j.id ? "on" : ""}`} onClick={() => setJob(j.id)}>{j.label}</button>
+            ))}
+          </div>
+          {job === "biz" && (
+            <div style={{ fontSize: 12, color: "#3C4A44", background: "#F2F7F4", borderRadius: 8, padding: "8px 12px", marginBottom: 10 }}>
+              자영업·소상공인 대상 지원(정책자금·희망리턴 등)은 상단
+              <button onClick={() => setAudience("biz")} style={{ margin: "0 4px", padding: "2px 8px", borderRadius: 999, border: "none", background: "#22303C", color: "#fff", fontSize: 11.5, fontWeight: 800, cursor: "pointer" }}>사업주·창업·기업</button>
+              탭에 모여 있습니다. 개인 자격 혜택(근로장려금 등)은 이 탭에서 계속 확인하세요.
+            </div>
+          )}
+          <div style={{ marginBottom: 10 }} />
 
           <div className="flabel">해당되는 상황 (복수 선택){tags.length > 0 && <span style={{ color: "#3E9E74" }}> · {tags.length}개 선택</span>}</div>
           {tags.includes("재직 중") && tags.includes("구직 중") && (

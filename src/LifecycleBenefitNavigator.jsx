@@ -404,7 +404,7 @@ export default function LifecycleBenefitNavigator() {
 
       <header style={{ padding: "28px 20px 18px", maxWidth: 860, margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-          <span style={{ fontSize: 11, letterSpacing: 2, background: "#22303C", color: "#fff", padding: "3px 8px", borderRadius: 4 }}>DEMO v3.5</span>
+          <span style={{ fontSize: 11, letterSpacing: 2, background: "#22303C", color: "#fff", padding: "3px 8px", borderRadius: 4 }}>DEMO v3.6</span>
           <span style={{ fontSize: 12, color: "#7A8880" }}>예시 데이터 · 실제 요건과 다를 수 있음</span>
           <button onClick={() => setBigText(!bigText)}
             style={{ marginLeft: "auto", fontSize: 12, fontWeight: 800, padding: "4px 10px", borderRadius: 999, border: "1px solid #C9D2CE", background: bigText ? "#22303C" : "#fff", color: bigText ? "#fff" : "#5B6A63", cursor: "pointer" }}>
@@ -454,6 +454,7 @@ export default function LifecycleBenefitNavigator() {
           </div>
           <div style={{ fontSize: 11.5, color: "#7A8880", margin: "6px 0 2px" }}>
             🔒 선택하신 정보는 이 화면의 계산에만 쓰이며 저장·전송되지 않습니다.
+            <br />✓ 아래 항목은 모두 선택사항입니다 — 건너뛴 항목은 자동으로 '해당 없음'으로 계산됩니다.
           </div>
           <div style={{ margin: "12px 0 18px" }}>
             <input type="range" min={0} max={100} value={age}
@@ -571,22 +572,29 @@ export default function LifecycleBenefitNavigator() {
           )}
           <div style={{ marginBottom: 10 }} />
 
-          <div className="flabel">해당되는 상황 (복수 선택){tags.length > 0 && <span style={{ color: "#3E9E74" }}> · {tags.length}개 선택</span>}</div>
+          <div className="flabel">해당되는 상황 (해당하는 것만 · 복수 선택 가능){tags.length > 0 && <span style={{ color: "#3E9E74" }}> · {tags.length}개 선택</span>}</div>
           {tags.includes("재직 중") && tags.includes("구직 중") && (
             <div style={{ fontSize: 12, color: "#8A6D3B", background: "#FBF6E9", borderRadius: 8, padding: "8px 12px", marginBottom: 10 }}>
               '재직 중'과 '구직 중'을 함께 선택하셨어요. 실제로는 한 상태만 해당되므로 결과가 실제보다 넓게 잡힐 수 있습니다.
             </div>
           )}
-          {TAG_GROUPS.map((g) => (
-            <div key={g.group} style={{ marginBottom: 10 }}>
-              <div style={{ fontSize: 11, color: "#8B968F", fontWeight: 700, letterSpacing: 1, marginBottom: 5 }}>{g.group}</div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                {g.items.map((t) => (
-                  <button key={t} className={`chip ${tags.includes(t) ? "on" : ""}`} onClick={() => toggleTag(t)}>{t}</button>
-                ))}
+          {TAG_GROUPS.map((g) => {
+            const noneOn = !g.items.some((t) => tags.includes(t));
+            return (
+              <div key={g.group} style={{ marginBottom: 10 }}>
+                <div style={{ fontSize: 11, color: "#8B968F", fontWeight: 700, letterSpacing: 1, marginBottom: 5 }}>{g.group}</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  <button className="chip" onClick={() => setTags(tags.filter((t) => !g.items.includes(t)))}
+                    style={noneOn ? { background: "#8B968F", borderColor: "#8B968F", color: "#fff" } : { color: "#AEB8B2" }}>
+                    해당 없음
+                  </button>
+                  {g.items.map((t) => (
+                    <button key={t} className={`chip ${tags.includes(t) ? "on" : ""}`} onClick={() => toggleTag(t)}>{t}</button>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </section>
 
         {/* 연간 수혜범위 히어로 */}

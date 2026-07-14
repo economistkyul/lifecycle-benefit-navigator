@@ -38,7 +38,7 @@ if (process.env.OPENFISCAL_KEY) {
         const list = j?.ExpenditureBudgetInit5?.[1]?.row || [];
         if (!list.length) break;
         for (const r of list)
-          rows.push({ ministry: r.OFFC_NM, name: r.SACTV_NM, amt: Number(r.Y_YY_DFN_MEDI_KCUR_AMT || r.BDG_AMT || 0) });
+          rows.push({ ministry: r.OFFC_NM, name: r.SACTV_NM, amt: Number(r.Y_YY_DFN_MEDI_KCUR_AMT || r.Y_YY_MEDI_KCUR_AMT || 0) / 1000 }); /* API는 천원 단위 → 백만원 환산 */
         page += 1;
         if (page > 50) break;
       }
@@ -54,13 +54,20 @@ if (process.env.OPENFISCAL_KEY) {
   }
 } else {
   /* ── 엑셀 모드: data/raw/*.xlsx (열린재정 '재정사업 설명자료' 다운로드 형식) ── */
-  const files = fs.readdirSync("data/raw").filter((f) => /\.(xlsx|tsv|csv)$/.test(f));
+  const files = fs.readdirSync("data/raw").filter((f) => /\.(xlsx|tsv|csv|json)$/.test(f));
   for (const f of files) {
     let arr;
     if (f.endsWith(".xlsx")) {
       if (!XLSX) { console.log(`xlsx 모듈 없음 — ${f} 건너뜀`); continue; }
       const wb = XLSX.read(fs.readFileSync(path.join("data/raw", f)));
       arr = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1 });
+    } else if (f.endsWith(".json")) {
+      /* 열린재정 API 응답을 브라우저에서 저장한 파일 (천원 단위) */
+      const j = JSON.parse(fs.readFileSync(path.join("data/raw", f), "utf8"));
+      const list = j?.ExpenditureBudgetInit5?.[1]?.row || [];
+      for (const r of list)
+        rows.push({ ministry: r.OFFC_NM, name: r.SACTV_NM, amt: Number(r.Y_YY_DFN_MEDI_KCUR_AMT || r.Y_YY_MEDI_KCUR_AMT || 0) / 1000 });
+      continue;
     } else {
       const sep = f.endsWith(".tsv") ? "\t" : ",";
       arr = fs.readFileSync(path.join("data/raw", f), "utf8").split(/\r?\n/).map((l) => l.split(sep));

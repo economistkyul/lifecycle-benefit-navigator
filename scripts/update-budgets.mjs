@@ -3,6 +3,8 @@
    모드 2 (OPENFISCAL_KEY 환경변수 설정 시): 열린재정 OpenAPI 호출
    결과: src/live-budgets.json (사업 id → 최신 예산액 라벨) */
 import fs from "fs";
+import dns from "node:dns";
+dns.setDefaultResultOrder("ipv4first"); /* 정부 서버 IPv6 미응답 대비 */
 import path from "path";
 let XLSX; try { XLSX = await import("xlsx"); } catch { XLSX = null; }
 

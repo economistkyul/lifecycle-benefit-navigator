@@ -19,23 +19,39 @@ let rows = [];
 
 if (process.env.OPENFISCAL_KEY) {
   /* ── API 모드: 열린재정 세출예산 OpenAPI ──
-     인증키 발급: openfiscaldata.go.kr → Open API → 인증키 신청
-     ※ 승인 후 응답 필드명이 아래와 다르면 이 블록의 필드 매핑만 1회 수정 */
+     ⚠ 정부 API는 해외 IP를 차단하는 경우가 많음 (GitHub 로봇은 미국 서버)
+     → 접속 실패 시 오류 없이 종료하고 엑셀 모드 데이터를 유지 */
   const KEY = process.env.OPENFISCAL_KEY;
   const YEAR = process.env.FY || new Date().getFullYear();
-  let page = 1;
-  while (true) {
-    const url = `https://openapi.openfiscaldata.go.kr/ExpenditureBudgetInit5?Key=${KEY}&Type=json&pIndex=${page}&pSize=1000&FSCL_YY=${YEAR}`;
-    const res = await fetch(url);
-    const j = await res.json();
-    const list = j?.ExpenditureBudgetInit5?.[1]?.row || [];
-    if (!list.length) break;
-    for (const r of list)
-      rows.push({ ministry: r.OFFC_NM, name: r.SACTV_NM, amt: Number(r.Y_YY_DFN_MEDI_KCUR_AMT || r.BDG_AMT || 0) });
-    page += 1;
-    if (page > 50) break;
+  const BASES = [
+    "https://openapi.openfiscaldata.go.kr",
+    "http://openapi.openfiscaldata.go.kr",
+  ];
+  let ok = false;
+  for (const base of BASES) {
+    try {
+      let page = 1;
+      while (true) {
+        const url = `${base}/ExpenditureBudgetInit5?Key=${KEY}&Type=json&pIndex=${page}&pSize=1000&FSCL_YY=${YEAR}`;
+        const res = await fetch(url, { signal: AbortSignal.timeout(25000) });
+        const j = await res.json();
+        const list = j?.ExpenditureBudgetInit5?.[1]?.row || [];
+        if (!list.length) break;
+        for (const r of list)
+          rows.push({ ministry: r.OFFC_NM, name: r.SACTV_NM, amt: Number(r.Y_YY_DFN_MEDI_KCUR_AMT || r.BDG_AMT || 0) });
+        page += 1;
+        if (page > 50) break;
+      }
+      ok = rows.length > 0;
+      if (ok) { console.log(`API 성공(${base}): ${rows.length}행`); break; }
+    } catch (e) {
+      console.log(`API 접속 실패(${base}): ${e.cause?.code || e.name} — 다음 경로 시도`);
+    }
   }
-  console.log(`API 모드: ${rows.length}행 수신`);
+  if (!ok) {
+    console.log("※ API 접속 불가 — 해외 IP 차단 가능성. 엑셀 모드(data/raw)로 계속 운영됩니다.");
+    process.exit(0);
+  }
 } else {
   /* ── 엑셀 모드: data/raw/*.xlsx (열린재정 '재정사업 설명자료' 다운로드 형식) ── */
   const files = fs.readdirSync("data/raw").filter((f) => /\.(xlsx|tsv|csv)$/.test(f));

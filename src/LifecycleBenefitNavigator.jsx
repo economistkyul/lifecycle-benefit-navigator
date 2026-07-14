@@ -249,7 +249,7 @@ const PRESETS = [
   { label: "🎖️ 참전유공자(75)", set: { age: 75, gender: "M", income: "mid100", household: 2, tags: [], vet: "self", mil: "none", disability: "none", region: "nonmetro", audience: "personal" } },
 ];
 
-export default function LifecycleBenefitNavigator() {
+export default function LifecycleBenefitNavigator({ liveBudgets = {} }) {
   const [age, setAge] = useState(25);
   const [gender, setGender] = useState("F");
   const [income, setIncome] = useState("mid100");
@@ -404,7 +404,7 @@ export default function LifecycleBenefitNavigator() {
 
       <header style={{ padding: "28px 20px 18px", maxWidth: 860, margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-          <span style={{ fontSize: 11, letterSpacing: 2, background: "#22303C", color: "#fff", padding: "3px 8px", borderRadius: 4 }}>DEMO v3.6</span>
+          <span style={{ fontSize: 11, letterSpacing: 2, background: "#22303C", color: "#fff", padding: "3px 8px", borderRadius: 4 }}>DEMO v3.7</span>
           <span style={{ fontSize: 12, color: "#7A8880" }}>예시 데이터 · 실제 요건과 다를 수 있음</span>
           <button onClick={() => setBigText(!bigText)}
             style={{ marginLeft: "auto", fontSize: 12, fontWeight: 800, padding: "4px 10px", borderRadius: 999, border: "1px solid #C9D2CE", background: bigText ? "#22303C" : "#fff", color: bigText ? "#fff" : "#5B6A63", cursor: "pointer" }}>
@@ -865,6 +865,11 @@ export default function LifecycleBenefitNavigator() {
                 <div style={{ fontSize: 11, color: selected.src ? "#3E9E74" : "#7A8880", fontWeight: selected.src ? 800 : 400 }}>{selected.src ? "소관 / 재정 규모 · '26 열린재정 실데이터" : "소관 / 재정 규모(예시)"}</div>
                 <div style={{ fontSize: 13, fontWeight: 700, marginTop: 3 }}>{selected.ministry}</div>
                 <div style={{ fontSize: 12.5, marginTop: 1 }}>{selected.budget}</div>
+                {liveBudgets[String(selected.id)] && (
+                  <div style={{ fontSize: 11.5, color: "#3E9E74", marginTop: 4, fontWeight: 700 }}>
+                    ⟳ 자동 갱신: {liveBudgets[String(selected.id)].label} ({liveBudgets[String(selected.id)].asOf} 열린재정 기준)
+                  </div>
+                )}
               </div>
               <div style={{ background: "#FAFBFA", borderRadius: 10, padding: "10px 12px" }}>
                 <div style={{ fontSize: 11, color: "#7A8880" }}>근거 법령</div>

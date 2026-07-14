@@ -1,4 +1,4 @@
-# 국민 생애주기 혜택 내비게이터 (DEMO v3.2)
+# 국민 생애주기 혜택 내비게이터 (DEMO v3.5)
 
 태어나는 순간부터 노년까지 — 나이·성별·소득·거주지역·장애·보훈·병역 등 조건을 선택하면
 받을 수 있는 정부 혜택과 연간 수혜 범위를 한 화면에서 보여주는 프로토타입입니다.
@@ -18,7 +18,7 @@ npm run dev
 ```bash
 git init
 git add .
-git commit -m "생애주기 혜택 내비게이터 DEMO v3.2"
+git commit -m "생애주기 혜택 내비게이터 DEMO v3.5"
 # GitHub에서 새 저장소(repository) 만든 뒤:
 git remote add origin https://github.com/<아이디>/<저장소이름>.git
 git push -u origin main
@@ -33,3 +33,8 @@ git push -u origin main
 ## 데이터 출처
 - 예산액: 기획재정부 열린재정 '26년 세부사업 자료
 - 기준중위소득·기초연금·생계급여: '26년 보건복지부 확정 고시
+
+## 예산액 자동 갱신 (v3.7~)
+- `data/raw/` 폴더에 열린재정 엑셀을 올리면(깃허브 웹에서 드래그) GitHub Actions가 자동으로 예산액을 다시 계산해 반영합니다.
+- 열린재정 OpenAPI 인증키가 있으면: 저장소 Settings → Secrets and variables → Actions → New repository secret → 이름 `OPENFISCAL_KEY` 로 등록 → 매월 1일 완전 자동 갱신.
+- 매칭 규칙: `data/budget-map.json` (사업 id ↔ 세부사업명)

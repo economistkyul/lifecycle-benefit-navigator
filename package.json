@@ -1,11 +1,13 @@
 {
   "name": "lifecycle-benefit-navigator",
   "private": true,
-  "version": "2.6.0",
+  "version": "3.9.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "validate:data": "node scripts/validate-data.mjs",
+    "update:budgets": "node scripts/update-budgets.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -1,0 +1,10 @@
+{
+  "runAt": "2026-07-16T05:46:42.760Z",
+  "fiscalYear": 2026,
+  "mode": "file",
+  "sourceRowCount": 0,
+  "matchedBenefitCount": 0,
+  "unmatchedMapIds": [],
+  "invalidAmountRows": [],
+  "zeroAmountMatches": []
+}

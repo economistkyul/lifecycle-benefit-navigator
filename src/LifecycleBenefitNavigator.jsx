@@ -45,7 +45,7 @@ const JOB_TAG = { farmer: "농업인", fisher: "어업인", forester: "임업인
 const TAG_GROUPS = [
   { group: "가족·양육", items: ["임신 중", "자녀 양육", "한부모", "다자녀"] },
   { group: "일·배움", items: ["대학(원) 재학", "재직 중", "구직 중"] },
-  { group: "주거", items: ["무주택"] },
+  { group: "주거", items: ["무주택", "전세사기 피해"] },
   { group: "특별 대상", items: ["자립준비청년(보호종료)", "북한이탈주민", "이산가족", "다문화가족", "재외동포", "출소(예정)자", "범죄 피해자"] },
 ];
 
@@ -97,16 +97,16 @@ const BENEFITS = [
   { id: 12, name: "취업 후 상환 학자금대출", ministry: "교육부", ageMin: 19, ageMax: 39, incomeCap: 5, reqTags: ["대학(원) 재학"], vtype: "loan", valMin: 0, valMax: 0, amount: "등록금·생활비 대출", desc: "소득 발생 후 상환하는 학자금", channel: "한국장학재단", portal: "한국장학재단", budget: "융자사업", law: "취업 후 학자금 상환 특별법", brackets: [["등록금", "소요액 전액 대출"], ["생활비", "연 400만원 한도(예시)"], ["금리", "1%대 저금리(예시)"]] },
   { id: 13, name: "국가근로장학금", ministry: "교육부", ageMin: 19, ageMax: 39, incomeCap: 3, reqTags: ["대학(원) 재학"], vtype: "cash", valMin: 100, valMax: 500, amount: "교내외 근로 장학", desc: "근로 경험과 장학금 동시 제공", channel: "한국장학재단", portal: "한국장학재단", budget: "대학생 근로장학금지원 5,738억원 ('26 사업설명자료 검증)", src: true, law: "한국장학재단 설립 등에 관한 법률", brackets: [["교내 근로", "시급 1만원 내외(예시)"], ["교외 근로", "시급 1.2만원 내외(예시)"]] },
   { id: 14, name: "청년도약계좌", excl: "youthAsset", ministry: "금융위원회", ageMin: 19, ageMax: 34, incomeCap: 4, reqTags: ["재직 중"], vtype: "cash", valMin: 10, valMax: 40, amount: "정부기여금 + 비과세", desc: "5년 만기 자산형성 지원", channel: "취급은행 앱", portal: "정부24", budget: "서민금융진흥원 출연 1,242억원 ('26 열린재정)", src: true, law: "조세특례제한법 등", brackets: [["납입 한도", "월 70만원"], ["정부기여금", "소득별 월 최대 3.3만원"], ["이자소득", "비과세"]] },
-  { id: 15, name: "청년월세 특별지원", excl: "housing", ministry: "국토교통부", ageMin: 19, ageMax: 34, incomeCap: 2, reqTags: ["무주택"], vtype: "cash", valMin: 240, valMax: 240, amount: "월 20만원 × 12개월", desc: "무주택 청년 임차료 지원", channel: "복지로·지자체", portal: "복지로", budget: "1,300억원 ('26 열린재정)", src: true, law: "청년기본법 등", brackets: [["지원액", "실제 월세 범위 내 월 20만원"], ["기간", "최대 12개월"]] },
+  { id: 15, name: "청년월세 특별지원", excl: "housing", ministry: "국토교통부", ageMin: 19, ageMax: 34, incomeCap: 2, reqTags: ["무주택"], vtype: "cash", valMin: 240, valMax: 240, amount: "월 20만원 × 12개월", desc: "무주택 청년 임차료 지원", channel: "복지로·지자체", portal: "복지로", budget: "1,300억원 ('26 열린재정·2-1 검증)", src: true, law: "주거기본법 §15·청년기본법 §20", brackets: [["지원액", "실제 월세 범위 내 월 20만원"], ["기간", "최대 12개월"]] },
   { id: 16, name: "국민취업지원제도", excl: "jobIncome", ministry: "고용노동부", ageMin: 15, ageMax: 69, incomeCap: 3, reqTags: ["구직 중"], vtype: "cash", valMin: 300, valMax: 540, amount: "구직촉진수당 월 50만원 × 6개월", desc: "취업지원 서비스 + 소득 지원", channel: "고용24", portal: "고용24", budget: "1조 228억원 ('26 열린재정, 일반+지특)", src: true, law: "구직자 취업촉진법", brackets: [["Ⅰ유형 구직촉진수당", "월 50만원 × 6개월"], ["부양가족 가산", "1인당 월 10만원(최대 40만원)"], ["취업성공수당", "최대 150만원"]] },
   { id: 17, name: "국민내일배움카드", ministry: "고용노동부", ageMin: 15, ageMax: 74, incomeCap: 5, anyTags: ["구직 중", "재직 중"], vtype: "voucher", valMin: 60, valMax: 100, amount: "훈련비 300~500만원 한도", desc: "직업훈련 비용 지원", channel: "고용24·HRD-Net", portal: "고용24", budget: "1조 1,364억원 ('26 열린재정, 일반+고보+지특)", src: true, law: "국민 평생 직업능력 개발법", brackets: [["기본 한도", "5년간 300만원"], ["저소득·특화과정", "최대 500만원"], ["자부담", "과정별 15~55%"]] },
-  { id: 18, name: "K-패스", ministry: "국토교통부", ageMin: 19, ageMax: 100, incomeCap: 5, vtype: "cash", valMin: 10, valMax: 50, amount: "대중교통비 20~53% 환급", desc: "월 15회 이상 이용 시 환급", channel: "K-패스 앱·카드사", portal: "정부24", budget: "대중교통비 환급 지원 5,580억원 ('26 열린재정)", src: true, law: "대중교통법", brackets: [["일반", "20% 환급"], ["청년(19~34세)", "30% 환급"], ["저소득층", "53% 환급"]] },
+  { id: 18, name: "K-패스", ministry: "국토교통부", ageMin: 19, ageMax: 100, incomeCap: 5, vtype: "cash", valMin: 10, valMax: 80, amount: "대중교통비 20~53% 환급", desc: "월 15회 이상 이용 시 환급 — '26 다자녀·어르신 유형 및 '모두의 카드' 확인", channel: "K-패스 앱·카드사", portal: "정부24", budget: "대중교통비 환급 지원 5,580억원 ('26 열린재정·2-1 검증)", src: true, law: "대중교통법 제10조의12", brackets: [["일반", "20% 환급"], ["청년(19~34세)·어르신(65세+)", "30% 환급"], ["다자녀", "2자녀 30% · 3자녀 이상 50% ('26 2-1 확인)"], ["저소득층", "53% 환급"], ["모두의 카드", "일정 금액 초과 이용분 100% 환급 ('26 신설)"]] },
   { id: 19, name: "육아휴직급여", ministry: "고용노동부", ageMin: 19, ageMax: 54, incomeCap: 5, reqTags: ["자녀 양육", "재직 중"], vtype: "cash", valMin: 900, valMax: 2300, amount: "월 최대 250만원(초기)", desc: "육아휴직 기간 소득 보전 (부·모 각각 사용 가능)", channel: "고용24", portal: "고용24", budget: "모성보호육아지원 4조 728억원 ('26 열린재정, 출산휴가급여 포함)", src: true, law: "고용보험법", brackets: [["1~3개월", "월 최대 250만원(예시)"], ["4~6개월", "월 최대 200만원(예시)"], ["7개월~", "월 최대 160만원(예시)"], ["부모 동시 사용", "6+6 특례 가산"]] },
   { id: 20, name: "근로장려금(EITC)", ministry: "국세청", ageMin: 19, ageMax: 100, incomeCap: 2, reqTags: ["재직 중"], vtype: "cash", valMin: 50, valMax: 330, amount: "연 최대 330만원", desc: "저소득 근로가구 소득 지원", channel: "홈택스", portal: "홈택스", budget: "조세지출 약 5조원(예시)", law: "조세특례제한법", brackets: [["단독가구", "최대 165만원"], ["홑벌이가구", "최대 285만원"], ["맞벌이가구", "최대 330만원"]] },
   { id: 21, name: "자녀장려금", perChild: true, ministry: "국세청", ageMin: 19, ageMax: 64, incomeCap: 3, reqTags: ["자녀 양육"], vtype: "cash", valMin: 50, valMax: 100, valNote: "자녀 1인 기준", amount: "자녀 1인당 최대 100만원", desc: "저소득 양육가구 지원", channel: "홈택스", portal: "홈택스", budget: "조세지출 약 1조원(예시)", law: "조세특례제한법", brackets: [["18세 미만 자녀", "1인당 50~100만원(소득별)"]] },
   { id: 22, name: "생계급여", excl: "basicOffset", ministry: "보건복지부", ageMin: 0, ageMax: 100, incomeCap: 0, vtype: "cash", valMin: 400, valMax: 2340, amount: "중위 32% 기준 부족분", desc: "기초생활보장 현금급여 ('26 기준 약 4만 명 신규 수급 전망)", channel: "행정복지센터", portal: "복지로", budget: "9조 1,727억원 ('26 열린재정)", src: true, law: "국민기초생활보장법", brackets: [["1인 가구", "월 최대 82만 556원 ('26 확정)"], ["4인 가구", "월 최대 207만 8,316원 ('26 확정)"], ["지급 방식", "기준액 − 소득인정액"], ["'26 제도개선", "청년 근로소득 공제 확대, 자동차재산 기준 완화"]] },
   { id: 23, name: "의료급여", ministry: "보건복지부", ageMin: 0, ageMax: 100, incomeCap: 0, vtype: "service", valMin: 0, valMax: 0, amount: "의료비 본인부담 경감", desc: "저소득층 의료보장", channel: "행정복지센터", portal: "복지로", budget: "9조 8,400억원 ('26 열린재정)", src: true, law: "의료급여법", brackets: [["1종", "외래 1,000~2,000원 정액 등"], ["2종", "입원 10% 등 경감"]] },
-  { id: 24, name: "주거급여", excl: "housing", ministry: "국토교통부", ageMin: 0, ageMax: 100, incomeCap: 2, reqTags: ["무주택"], vtype: "cash", valMin: 120, valMax: 420, amount: "기준임대료 내 임차료", desc: "저소득 가구 주거비 지원", channel: "복지로", portal: "복지로", budget: "3조 2,309억원 ('26 열린재정)", src: true, law: "주거급여법", brackets: [["서울 1인", "월 36만원 수준(예시)"], ["'26 기준임대료", "급지·가구원수별 1.7~3.9만원 인상"], ["자가가구", "수선유지비 지원"]] },
+  { id: 24, name: "주거급여", excl: "housing", ministry: "국토교통부", ageMin: 0, ageMax: 100, incomeCap: 2, reqTags: ["무주택"], vtype: "cash", valMin: 250, valMax: 440, valNote: "1인 가구 기준", amount: "기준임대료 내 임차료", desc: "저소득 가구 주거비 지원", channel: "복지로", portal: "복지로", budget: "3조 2,309억원 ('26 열린재정·사업설명자료 검증)", src: true, law: "주거급여법", brackets: [["1급지(서울) 1인", "월 36.9만원 ('26 확정, +1.7)"], ["4급지(그 외 지역) 1인", "월 21.2만원 ('26 확정)"], ["전체 범위", "급지·가구원수별 월 21.2~69.9만원"], ["자기부담", "소득인정액이 중위 32% 초과 시 일부 차감"], ["자가가구", "수선유지비 지원"]] },
   { id: 25, name: "한부모가족 아동양육비", perChild: true, ministry: "성평등가족부", ageMin: 19, ageMax: 64, incomeCap: 2, reqTags: ["한부모", "자녀 양육"], vtype: "cash", valMin: 276, valMax: 480, valNote: "자녀 1인 기준", amount: "자녀 1인당 월 23만원", desc: "한부모 가구 양육비 지원", channel: "복지로", portal: "복지로", budget: "5,722억원 ('26 열린재정)", src: true, law: "한부모가족지원법", brackets: [["일반", "자녀 1인당 월 23만원"], ["청소년한부모(0~1세 자녀)", "월 40만원 수준(예시)"], ["양육비 이행지원", "양육비이행관리원 '26 예산 461억원 — 미지급 양육비 추심·한시 긴급지원"]] },
   { id: 26, name: "에너지바우처", ministry: "기후에너지환경부(이관)", ageMin: 0, ageMax: 100, incomeCap: 1, vtype: "voucher", valMin: 31, valMax: 70, amount: "하절기·동절기 광열비", desc: "취약계층 냉난방비 지원", channel: "행정복지센터", portal: "복지로", budget: "4,940억원 + 산업부 계상 231억원 ('26 열린재정)", src: true, law: "에너지법", brackets: [["연간(가구원수별)", "31~70만원 수준(예시)"]] },
   { id: 27, name: "장애인연금", ministry: "보건복지부", ageMin: 18, ageMax: 100, incomeCap: 3, disability: "severe", vtype: "cash", valMin: 410, valMax: 520, amount: "월 최대 40만원대", desc: "중증장애인(심한 장애) 소득 보전", channel: "복지로", portal: "복지로", budget: "9,071억원 ('26 열린재정)", src: true, law: "장애인연금법", brackets: [["기초급여", "월 34만원 수준(예시)"], ["부가급여", "수급자격별 3~9만원"]] },
@@ -123,7 +123,7 @@ const BENEFITS = [
   { id: 39, name: "대지급금(임금체불)", ministry: "고용노동부", ageMin: 15, ageMax: 100, incomeCap: 5, reqTags: ["재직 중"], vtype: "service", valMin: 0, valMax: 0, amount: "체불임금 국가 선지급", desc: "임금 체불 시 국가가 먼저 지급하고 사업주에게 회수", channel: "근로복지공단·고용24", portal: "고용24", budget: "7,461억원 ('26 열린재정)", src: true, law: "임금채권보장법", brackets: [["퇴직자", "최대 2,100만원 수준(예시)"], ["재직자 간이대지급금", "최대 700만원 수준(예시)"]] },
   { id: 45, name: "청년미래적금", excl: "youthAsset", ministry: "금융위원회", ageMin: 19, ageMax: 34, incomeCap: 4, vtype: "cash", valMin: 36, valMax: 72, valNote: "연 기여금", amount: "월 납입 50만원에 기여금 6~12% 매칭", desc: "3년 만기 자산형성 적금 — '26.6월 출시, 기본금리 5%+우대 최대 3%p, 비과세", channel: "취급은행 14곳 앱 (반기별 모집: 6월·12월)", portal: "정부24", budget: "7,446억원 ('26 열린재정)", src: true, law: "조세특례제한법", brackets: [["가입", "만 19~34세 (병역기간 최대 6년 연령 미산입)"], ["일반형", "총급여 6,000만원 이하 + 가구 중위 200% 이하 → 기여금 6% (3년 최대 108만원)"], ["우대형", "중소기업 재직 3,600만원 이하 등 → 기여금 12% (최대 216만원)"], ["총급여 6,000만~7,500만원", "비과세 혜택만 적용"], ["만기 수령", "월 50만 납입 시 최대 2,255만원 수준"], ["도약계좌 가입자", "특별중도해지 후 갈아타기 가능"]] },
   { id: 46, name: "햇살론(특례·유스)", ministry: "금융위원회", ageMin: 19, ageMax: 64, incomeCap: 2, vtype: "loan", valMin: 0, valMax: 0, amount: "서민 보증부 저리 대출", desc: "저신용·저소득자와 청년(유스)의 긴급 생활·자립자금 융자", channel: "서민금융진흥원·서민금융콜센터 1397", portal: "정부24", budget: "1,297억원 ('26 열린재정, 특례+유스)", src: true, law: "서민의 금융생활 지원에 관한 법률", brackets: [["햇살론유스(청년)", "최대 1,200만원, 금리 3%대 수준(예시)"], ["보증", "서민금융진흥원 보증부"]] },
-  { id: 44, name: "주택구입·전세자금 융자(디딤돌·버팀목)", ministry: "국토교통부", ageMin: 19, ageMax: 64, incomeCap: 4, reqTags: ["무주택"], vtype: "loan", valMin: 0, valMax: 0, amount: "저리 구입·전세 대출", desc: "무주택 서민의 내집마련·전세보증금 저금리 융자", channel: "기금e든든·수탁은행", portal: "정부24", budget: "10조 3,016억원 ('26 열린재정, 주택도시기금 융자)", src: true, law: "주택도시기금법", brackets: [["디딤돌(구입)", "금리 2%대, 최대 2.5~4억원 수준(예시)"], ["버팀목(전세)", "금리 1~2%대, 보증금 지역별 한도(예시)"], ["신생아 특례", "출산 가구 우대금리(예시)"]] },
+  { id: 44, name: "주택구입·전세자금 융자(디딤돌·버팀목)", ministry: "국토교통부", ageMin: 19, ageMax: 64, incomeCap: 4, reqTags: ["무주택"], vtype: "loan", valMin: 0, valMax: 0, amount: "저리 구입·전세 대출", desc: "무주택 서민의 내집마련·전세보증금 저금리 융자", channel: "기금e든든·수탁은행", portal: "정부24", budget: "10조 3,016억원 ('26 열린재정, 주택도시기금 융자)", src: true, law: "주택도시기금법", brackets: [["디딤돌(구입)", "금리 2%대, 최대 2.5~4억원 수준(예시)"], ["버팀목(전세)", "금리 1~2%대, 보증금 지역별 한도(예시)"], ["신생아 특례", "'26 신생아 특례 2.0조·청년주택드림 1.2조·디딤돌 3.1조 등 편성 (2-1 검증)"]] },
   { id: 43, name: "평생교육이용권(평생교육바우처)", ministry: "교육부", ageMin: 19, ageMax: 100, incomeCap: 1, vtype: "voucher", valMin: 35, valMax: 35, amount: "연 35만원 바우처", desc: "저소득 성인의 평생학습 강좌 수강 지원", channel: "평생교육바우처 누리집", portal: "정부24", budget: "286억원 ('26 열린재정)", src: true, law: "평생교육법", brackets: [["기초·차상위 성인", "연 35만원 (사용처: 등록 평생교육기관)"]] },
   { id: 40, name: "긴급복지지원", ministry: "보건복지부", ageMin: 0, ageMax: 100, incomeCap: 3, vtype: "cash", valMin: 180, valMax: 1100, amount: "위기 시 생계·의료·주거비", desc: "실직·질병·화재 등 갑작스러운 위기 상황 시 신속 지원", channel: "129 보건복지상담센터·행정복지센터", portal: "복지로", budget: "4,053억원 ('26 열린재정)", src: true, law: "긴급복지지원법", brackets: [["생계지원", "4인 가구 월 183만원 수준(예시) × 1~6개월"], ["의료지원", "회당 300만원 한도(예시)"], ["주거·교육·연료비", "항목별 별도 지원"]] },
   { id: 41, name: "자립준비청년 자립수당", ministry: "보건복지부", ageMin: 18, ageMax: 23, incomeCap: 5, reqTags: ["자립준비청년(보호종료)"], vtype: "cash", valMin: 600, valMax: 600, amount: "월 50만원", desc: "아동복지시설·위탁가정 보호종료 후 5년간 자립 지원", channel: "행정복지센터·자립지원전담기관", portal: "복지로", budget: "341억원 ('26 열린재정)", src: true, law: "아동복지법", brackets: [["보호종료 후 5년 이내", "월 50만원 ('26 2-1 검증 · 30→35→40→50만원 단계 인상)"], ["조기보호종료아동", "만 15세 이후 조기 종료자도 포함 ('24.2 확대)"], ["자립정착금", "지자체별 1,000만원 내외 별도(예시)"]] },
@@ -214,6 +214,7 @@ const BENEFITS = [
   { id: 192, name: "중소기업협동조합 육성", ministry: "중소벤처기업부", audience: "biz", sizes: ["소상공인", "중소기업"], ageMin: 19, ageMax: 100, incomeCap: 5, vtype: "grant", valMin: 0, valMax: 0, amount: "공동사업 지원", desc: "동종 업종 협동조합 결성 시 공동구매·공동판매 등 공동사업 지원", channel: "중소기업중앙회", portal: "정부24", budget: "175억원 ('26 열린재정)", src: true, law: "중소기업협동조합법", brackets: [["공동사업", "공동구매·물류·판로 지원"], ["조합 결성", "설립 컨설팅"]] },
   { id: 200, name: "주거안정장학금", ministry: "교육부", ageMin: 19, ageMax: 39, incomeCap: 1, reqTags: ["대학(원) 재학"], vtype: "cash", valMin: 240, valMax: 240, amount: "월 20만원", desc: "원거리 대학 진학 기초·차상위 대학생의 주거비 부담 경감", channel: "한국장학재단", portal: "한국장학재단", budget: "175억원 ('26 사업설명자료 검증)", src: true, law: "한국장학재단 설립 등에 관한 법률", brackets: [["대상", "원거리 진학 기초·차상위 대학생"], ["지원", "월 20만원 주거비"]] },
   { id: 210, name: "임업직불금", ministry: "산림청", ageMin: 19, ageMax: 100, incomeCap: 5, reqTags: ["임업인"], vtype: "cash", valMin: 130, valMax: 500, amount: "소규모임가 130만원 등", desc: "임야 대상 임업·산림 공익직불 (농업 공익직불의 산림판)", channel: "지자체 산림부서·산림청", portal: "정부24", budget: "산림청 파일 반영 대기 (예시, 약 600억원 규모)", law: "임업·산림 공익직불법", brackets: [["소규모임가 직불", "가구당 연 130만원(예시)"], ["면적직불", "임야 면적 구간별 단가(예시)"], ["요건", "임야 소재 임업경영체 등록"]] },
+  { id: 220, name: "전세사기 피해자 지원", ministry: "국토교통부", ageMin: 19, ageMax: 100, incomeCap: 5, reqTags: ["전세사기 피해"], vtype: "service", valMin: 0, valMax: 0, amount: "긴급주거·저리대출·경공매 지원", desc: "전세사기피해자 결정을 받은 임차인의 주거·금융·법률 종합 지원", channel: "전세피해지원센터(1533-8119)·지자체", portal: "정부24", budget: "피해방지·지원 718억원 ('26 2-1, 전년비 +34%) + LH 피해주택 매입 별도", src: true, law: "전세사기피해자 지원 특별법", brackets: [["긴급 주거", "LH 임시거처 제공"], ["금융", "버팀목 특례 저리 대출·기존 대출 대환"], ["경·공매", "대행 지원, 우선매수권"], ["LH 매입", "피해주택 매입 후 공공임대로 재임대"]] },
   { id: 33, name: "해산·장제급여", ministry: "보건복지부", ageMin: 0, ageMax: 100, incomeCap: 0, vtype: "cash", valMin: 70, valMax: 80, valNote: "일시금", amount: "해산 70만·장제 80만원", desc: "수급자 출산 시 해산급여, 사망 시 장제급여 — 탄생부터 삶의 마지막까지", channel: "행정복지센터", portal: "복지로", budget: "519억원 ('26 열린재정·사업설명자료 검증)", src: true, law: "국민기초생활보장법", brackets: [["해산급여 (출산 시)", "70만원 ('26 2-1 검증)"], ["장제급여 (사망 시)", "1구당 80만원 ('26 2-1 검증)"]] },
 ];
 
@@ -238,6 +239,12 @@ const gateOf = (b) => {
   return ["보편형", "#3E9E74"];
 };
 const fmt = (v) => (v >= 10000 ? `${(v / 10000).toFixed(1).replace(/\.0$/, "")}억` : `${v.toLocaleString()}만`);
+
+const DEFAULT_PROFILE = {
+  age: 25, gender: "F", income: "mid100", household: 1, childCount: 0, job: "none",
+  tags: [], vet: "none", mil: "none", disability: "none", region: "metro",
+  audience: "personal", bizSize: "소상공인", bizTags: [],
+};
 
 const PRESETS = [
   { label: "👶 신생아 가정", set: { age: 0, gender: "M", income: "mid100", household: 3, tags: [], vet: "none", mil: "none", disability: "none", region: "metro", audience: "personal" } },
@@ -283,18 +290,12 @@ export default function LifecycleBenefitNavigator({ liveBudgets = {} }) {
   };
 
   const applyPreset = (ps) => {
-    if (ps.age !== undefined) setAge(ps.age);
-    if (ps.gender) setGender(ps.gender);
-    if (ps.income) setIncome(ps.income);
-    if (ps.household) setHousehold(ps.household);
-    if (ps.tags) setTags(ps.tags);
-    if (ps.vet) setVet(ps.vet);
-    if (ps.mil) setMil(ps.mil);
-    if (ps.disability) setDisability(ps.disability);
-    if (ps.region) setRegion(ps.region);
-    if (ps.audience) setAudience(ps.audience);
-    if (ps.bizSize) setBizSize(ps.bizSize);
-    if (ps.bizTags) setBizTags(ps.bizTags);
+    /* 이전 선택이 남지 않도록 기본 프로필로 전체 초기화 후 프리셋 적용 */
+    const f = { ...DEFAULT_PROFILE, ...ps };
+    setAge(f.age); setGender(f.gender); setIncome(f.income); setHousehold(f.household);
+    setChildCount(f.childCount); setJob(f.job); setTags(f.tags);
+    setVet(f.vet); setMil(f.mil); setDisability(f.disability); setRegion(f.region);
+    setAudience(f.audience); setBizSize(f.bizSize); setBizTags(f.bizTags);
   };
 
   const toggleBizTag = (t) =>
@@ -367,6 +368,7 @@ export default function LifecycleBenefitNavigator({ liveBudgets = {} }) {
   const cashN = sumPicks.filter((b) => b.vtype === "cash").length;
   const vouchN = sumPicks.filter((b) => b.vtype === "voucher").length;
   const dedupCount = sumable.length - sumPicks.length;
+  const dedupNames = sumable.filter((b) => !sumPicks.includes(b)).map((b) => b.name);
   const etcCount = nowEligible.length - sumable.length;
 
   /* 기업 모드: 장려금·바우처(grant) 합산, 융자는 건수 별도 */
@@ -404,7 +406,7 @@ export default function LifecycleBenefitNavigator({ liveBudgets = {} }) {
 
       <header style={{ padding: "28px 20px 18px", maxWidth: 860, margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-          <span style={{ fontSize: 11, letterSpacing: 2, background: "#22303C", color: "#fff", padding: "3px 8px", borderRadius: 4 }}>DEMO v3.7</span>
+          <span style={{ fontSize: 11, letterSpacing: 2, background: "#22303C", color: "#fff", padding: "3px 8px", borderRadius: 4 }}>DEMO v3.9</span>
           <span style={{ fontSize: 12, color: "#7A8880" }}>예시 데이터 · 실제 요건과 다를 수 있음</span>
           <button onClick={() => setBigText(!bigText)}
             style={{ marginLeft: "auto", fontSize: 12, fontWeight: 800, padding: "4px 10px", borderRadius: 999, border: "1px solid #C9D2CE", background: bigText ? "#22303C" : "#fff", color: bigText ? "#fff" : "#5B6A63", cursor: "pointer" }}>
@@ -573,6 +575,11 @@ export default function LifecycleBenefitNavigator({ liveBudgets = {} }) {
           <div style={{ marginBottom: 10 }} />
 
           <div className="flabel">해당되는 상황 (해당하는 것만 · 복수 선택 가능){tags.length > 0 && <span style={{ color: "#3E9E74" }}> · {tags.length}개 선택</span>}</div>
+          {childCount === 0 && tags.includes("자녀 양육") && (
+            <div style={{ fontSize: 12, color: "#8A6D3B", background: "#FBF6E9", borderRadius: 8, padding: "8px 12px", marginBottom: 10 }}>
+              '자녀 양육'을 선택하셨어요 — 위의 자녀 수도 함께 선택하면 자녀 1인당 사업(자녀장려금 등)이 정확히 계산됩니다.
+            </div>
+          )}
           {tags.includes("재직 중") && tags.includes("구직 중") && (
             <div style={{ fontSize: 12, color: "#8A6D3B", background: "#FBF6E9", borderRadius: 8, padding: "8px 12px", marginBottom: 10 }}>
               '재직 중'과 '구직 중'을 함께 선택하셨어요. 실제로는 한 상태만 해당되므로 결과가 실제보다 넓게 잡힐 수 있습니다.
@@ -606,6 +613,11 @@ export default function LifecycleBenefitNavigator({ liveBudgets = {} }) {
           <div className="serif" style={{ fontSize: 32, fontWeight: 800, margin: "4px 0 2px", lineHeight: 1.2 }}>
             {sumable.length > 0 ? <>약 {fmt(totalMin)} ~ {fmt(totalMax)}원</> : <>해당 없음</>}
           </div>
+          {dedupCount > 0 && (
+            <div style={{ fontSize: 11.5, color: "#8FA098", marginBottom: 2 }}>
+              택1 제외: {dedupNames.join(" · ")}
+            </div>
+          )}
           <div style={{ fontSize: 11.5, color: "#8FA098" }}>
             일시금 포함 · 사업별 상한 기준 · 중복불가 그룹은 유리한 1개만 합산{etcCount > 0 && <> · 서비스·융자형 {etcCount}건 별도</>} · 예시 수치
           </div>
@@ -880,7 +892,19 @@ export default function LifecycleBenefitNavigator({ liveBudgets = {} }) {
             <div style={{ marginTop: 14, background: "#FAFBFA", borderRadius: 10, padding: "10px 12px" }}>
               <div style={{ fontSize: 11, color: "#7A8880" }}>신청 방법</div>
               <div style={{ fontSize: 13, fontWeight: 700, marginTop: 3 }}>{selected.channel}</div>
-              {PORTAL[selected.portal] && (
+              {selected.applicationUrl && (
+                <a href={selected.applicationUrl} target="_blank" rel="noreferrer"
+                  style={{ display: "inline-block", marginTop: 8, marginRight: 8, fontSize: 13, fontWeight: 700, color: "#fff", background: "#3E9E74", padding: "8px 14px", borderRadius: 8, textDecoration: "none" }}>
+                  바로 신청하기 →
+                </a>
+              )}
+              {selected.officialDetailUrl && (
+                <a href={selected.officialDetailUrl} target="_blank" rel="noreferrer"
+                  style={{ display: "inline-block", marginTop: 8, marginRight: 8, fontSize: 13, fontWeight: 700, color: "#22303C", background: "#EEF2F0", padding: "8px 14px", borderRadius: 8, textDecoration: "none" }}>
+                  공식 상세정보
+                </a>
+              )}
+              {!selected.applicationUrl && PORTAL[selected.portal] && (
                 <a href={PORTAL[selected.portal]} target="_blank" rel="noreferrer"
                   style={{ display: "inline-block", marginTop: 8, fontSize: 13, fontWeight: 700, color: "#fff", background: "#22303C", padding: "8px 14px", borderRadius: 8, textDecoration: "none" }}>
                   {selected.portal}에서 신청하기 →
@@ -908,6 +932,13 @@ export default function LifecycleBenefitNavigator({ liveBudgets = {} }) {
                 ③ 거주 시·군·구의 추가 지원(출산장려금, 지역 수당 등)이 별도로 있을 수 있으니 지자체 누리집도 함께 확인하세요.
               </div>
             </div>
+
+            {(selected.lastVerifiedAt || selected.sourceStatus) && (
+              <div style={{ marginTop: 8, fontSize: 11.5, color: "#7A8880" }}>
+                {selected.lastVerifiedAt && <>최종 확인일: {selected.lastVerifiedAt}</>}
+                {selected.sourceStatus && <> · 출처 상태: {selected.sourceStatus}</>}
+              </div>
+            )}
 
             <div style={{ marginTop: 12, fontSize: 11, color: "#8B968F", lineHeight: 1.6 }}>
               ※ 금액·예산·요건은 데모용 예시입니다. 실제 시스템에서는 국회 제출 예산안 사업설명자료(2-1)와

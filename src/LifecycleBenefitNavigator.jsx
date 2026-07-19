@@ -241,7 +241,7 @@ const gateOf = (b) => {
 const fmt = (v) => (v >= 10000 ? `${(v / 10000).toFixed(1).replace(/\.0$/, "")}억` : `${v.toLocaleString()}만`);
 
 const DEFAULT_PROFILE = {
-  age: 25, gender: "F", income: "mid100", household: 1, childCount: 0, childAge: 0, job: "none",
+  age: 25, gender: "F", income: "mid100", household: 1, childCount: 0, childAge: null, job: "none",
   tags: [], vet: "none", mil: "none", disability: "none", region: "metro",
   audience: "personal", bizSize: "소상공인", bizTags: [],
 };
@@ -262,7 +262,7 @@ export default function LifecycleBenefitNavigator({ liveBudgets = {} }) {
   const [income, setIncome] = useState("mid100");
   const [household, setHousehold] = useState(1);
   const [childCount, setChildCount] = useState(0);
-  const [childAge, setChildAge] = useState(0);
+  const [childAge, setChildAge] = useState(null); /* null = 미입력 */
   const [job, setJob] = useState("none");
   const [disability, setDisability] = useState("none");
   const [vet, setVet] = useState("none");
@@ -348,19 +348,22 @@ export default function LifecycleBenefitNavigator({ liveBudgets = {} }) {
   const profileMatched = useMemo(() => BENEFITS.filter(matchesProfile), [income, tags, childCount, job, gender, disability, vet, mil, region, audience, bizSize, bizTags]);
   /* ageTarget:"child" 사업(아동수당 등)은 신청자 나이가 아니라 막내 자녀 나이로 판정 */
   const ageFor = (b) => (b.ageTarget === "child" ? childAge : age);
-  const nowEligibleAll = profileMatched.filter((b) => ageFor(b) >= b.ageMin && ageFor(b) <= b.ageMax);
+  const nowEligibleAll = profileMatched.filter((b) => {
+    if (b.ageTarget === "child" && (childCount === 0 || childAge === null)) return true; /* 판정 보류 → 잠재 혜택 */
+    return ageFor(b) >= b.ageMin && ageFor(b) <= b.ageMax;
+  });
   /* 잠재 혜택: 소득 미상×소득요건 / 자녀 정보 미입력×자녀 기준 사업 → 확정 합계에서 제외 */
   const reviewNeeded = nowEligibleAll.filter((b) =>
     (income === "unknown" && b.incomeCap < 5) ||
     (b.perChild && childCount === 0) ||
-    (b.ageTarget === "child" && childCount === 0)
+    (b.ageTarget === "child" && (childCount === 0 || childAge === null))
   );
   const nowEligible = nowEligibleAll.filter((b) => !reviewNeeded.includes(b));
   const rvMult = (b) => (b.perChild ? Math.max(childCount, 1) : 1);
   const reviewCashes = reviewNeeded.filter((b) => (b.vtype === "cash" || b.vtype === "voucher") && !b.conditional);
   const reviewMax = reviewCashes.reduce((t, b) => t + b.valMax * rvMult(b), 0);
   const upcoming = profileMatched
-    .filter((b) => (b.ageTarget === "child" ? childCount > 0 && b.ageMin > childAge : b.ageMin > age))
+    .filter((b) => (b.ageTarget === "child" ? childCount > 0 && childAge !== null && b.ageMin > childAge : b.ageMin > age))
     .sort((a, b) => a.ageMin - b.ageMin);
   const ministries = new Set(nowEligible.map((b) => b.ministry));
   const curStage = stageOf(age);
@@ -422,7 +425,7 @@ export default function LifecycleBenefitNavigator({ liveBudgets = {} }) {
 
       <header style={{ padding: "28px 20px 18px", maxWidth: 860, margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-          <span style={{ fontSize: 11, letterSpacing: 2, background: "#22303C", color: "#fff", padding: "3px 8px", borderRadius: 4 }}>DEMO v4.0</span>
+          <span style={{ fontSize: 11, letterSpacing: 2, background: "#22303C", color: "#fff", padding: "3px 8px", borderRadius: 4 }}>DEMO v4.1</span>
           <span style={{ fontSize: 12, color: "#7A8880" }}>예시 데이터 · 실제 요건과 다를 수 있음</span>
           <button onClick={() => setBigText(!bigText)}
             style={{ marginLeft: "auto", fontSize: 12, fontWeight: 800, padding: "4px 10px", borderRadius: 999, border: "1px solid #C9D2CE", background: bigText ? "#22303C" : "#fff", color: bigText ? "#fff" : "#5B6A63", cursor: "pointer" }}>
@@ -510,10 +513,12 @@ export default function LifecycleBenefitNavigator({ liveBudgets = {} }) {
               {childCount > 0 && (
                 <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                   <span style={{ fontSize: 12, color: "#5B6A63", fontWeight: 700 }}>막내 자녀 나이</span>
-                  <input type="number" min={0} max={18} value={childAge} aria-label="막내 자녀 나이"
-                    onChange={(e) => setChildAge(Math.max(0, Math.min(18, Number(e.target.value) || 0)))}
+                  <input type="number" min={0} max={18} value={childAge ?? ""} placeholder="?" aria-label="막내 자녀 나이"
+                    onChange={(e) => { const v = e.target.value; setChildAge(v === "" ? null : Math.max(0, Math.min(18, Number(v) || 0))); }}
                     style={{ width: 64, border: "1px solid #C9D2CE", borderRadius: 8, padding: "6px 8px", fontSize: 13, fontFamily: "inherit" }} />
-                  <span style={{ fontSize: 11.5, color: "#8B968F" }}>세 · 아동수당·부모급여 등은 자녀 나이로 판정합니다</span>
+                  <span style={{ fontSize: 11.5, color: childAge === null ? "#B8860B" : "#8B968F" }}>
+                    {childAge === null ? "나이를 입력하면 아동수당·부모급여 등이 정확히 판정됩니다" : "세 · 아동수당·부모급여 등은 자녀 나이로 판정합니다"}
+                  </span>
                 </div>
               )}
             </div>
@@ -777,7 +782,9 @@ export default function LifecycleBenefitNavigator({ liveBudgets = {} }) {
                   style={{ display: "flex", justifyContent: "space-between", gap: 8, padding: "9px 12px", background: "#fff", borderRadius: 8, cursor: "pointer" }}>
                   <span style={{ fontSize: 13, fontWeight: 700 }}>{b.name}</span>
                   <span style={{ fontSize: 11.5, color: "#B8860B", flexShrink: 0 }}>
-                    {income === "unknown" && b.incomeCap < 5 ? "소득 확인 필요" : "자녀 정보 확인 필요"}
+                    {income === "unknown" && b.incomeCap < 5 ? "소득 확인 필요"
+                      : b.ageTarget === "child" && childCount > 0 && childAge === null ? "자녀 나이 입력 필요"
+                      : "자녀 정보 확인 필요"}
                   </span>
                 </div>
               ))}

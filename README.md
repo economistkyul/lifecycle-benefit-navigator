@@ -1,4 +1,4 @@
-# 국민 생애주기 혜택 내비게이터 (DEMO v3.9)
+# 국민 생애주기 혜택 내비게이터 (DEMO v4.0)
 
 태어나는 순간부터 노년까지 — 나이·성별·소득·거주지역·장애·보훈·병역 등 조건을 선택하면
 받을 수 있는 정부 혜택과 연간 수혜 범위를 한 화면에서 보여주는 프로토타입입니다.
@@ -18,7 +18,7 @@ npm run dev
 ```bash
 git init
 git add .
-git commit -m "생애주기 혜택 내비게이터 DEMO v3.9"
+git commit -m "생애주기 혜택 내비게이터 DEMO v4.0"
 # GitHub에서 새 저장소(repository) 만든 뒤:
 git remote add origin https://github.com/<아이디>/<저장소이름>.git
 git push -u origin main

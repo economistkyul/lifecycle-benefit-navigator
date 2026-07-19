@@ -1,7 +1,12 @@
 {
-  "runAt": "2026-07-16T05:46:42.760Z",
+  "runAt": "2026-07-19T05:11:19.298Z",
   "fiscalYear": 2026,
   "mode": "file",
+  "runStatus": "no_data",
+  "didUpdateLiveBudgets": false,
+  "previousLiveCount": 29,
+  "newLiveCount": 29,
+  "apiError": null,
   "sourceRowCount": 0,
   "matchedBenefitCount": 0,
   "unmatchedMapIds": [],

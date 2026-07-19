@@ -20,6 +20,10 @@ for (const c of chunks) {
     vtype: g(/vtype: "(\w+)"/), portal: g(/portal: "([^"]+)"/),
     hasBudget: /budget: "/.test(c), hasBrackets: /brackets: \[\[/.test(c),
     src: /src: true/.test(c),
+    audience: g(/audience: "(\w+)"/), ageTarget: g(/ageTarget: "(\w+)"/),
+    perChild: /perChild: true/.test(c),
+    appUrl: g(/applicationUrl: "([^"]+)"/), offUrl: g(/officialDetailUrl: "([^"]+)"/),
+    raw: c,
   });
 }
 console.log(`BENEFITS 파싱: ${entries.length}건`);
@@ -37,6 +41,10 @@ for (const e of entries) {
   if (!e.hasBudget) warns.push(`budget 없음: [${e.id}] ${e.name}`);
   if (!e.hasBrackets) warns.push(`brackets 비어있음: [${e.id}] ${e.name}`);
   if (!["cash", "voucher", "service", "loan", "grant"].includes(e.vtype)) errors.push(`미등록 vtype "${e.vtype}": [${e.id}] ${e.name}`);
+  if (e.audience && e.audience !== "biz" && e.audience !== "personal") errors.push(`잘못된 audience "${e.audience}": [${e.id}]`);
+  if (e.ageTarget && !["applicant", "child", "any_household_member"].includes(e.ageTarget)) errors.push(`잘못된 ageTarget "${e.ageTarget}": [${e.id}]`);
+  for (const u of [e.appUrl, e.offUrl]) if (u && !/^https?:\/\//.test(u)) errors.push(`URL 형식 오류: [${e.id}] ${u}`);
+  if (e.perChild && !/자녀|아동/.test(e.raw)) warns.push(`perChild인데 자녀 조건 불명확: [${e.id}] ${e.name}`);
 }
 
 /* 5~6. 참조 무결성 */

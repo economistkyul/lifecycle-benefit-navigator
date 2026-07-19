@@ -24,15 +24,19 @@ const now = new Date().toISOString();
 const today = now.slice(0, 10);
 const FY = Number(process.env.FY || 2026);
 
-const report = { runAt: now, fiscalYear: FY, mode: "file", sourceRowCount: 0,
+const report = { runAt: now, fiscalYear: FY, mode: "file", runStatus: "no_data", didUpdateLiveBudgets: false,
+  previousLiveCount: 0, newLiveCount: 0, apiError: null, sourceRowCount: 0,
   matchedBenefitCount: 0, unmatchedMapIds: [], invalidAmountRows: [], zeroAmountMatches: [] };
 
 /* 3-1. 금액 파싱: 쉼표·공백·단위 허용, 실패 시 NaN */
+/* 단위 환산: 결과는 항상 백만원. "2억원"→200, "2.5조원"→2,500,000, "411,100 백만원"→411100 */
 const parseAmount = (v) => {
   if (v === null || v === undefined || v === "") return NaN;
   if (typeof v === "number") return v;
-  const cleaned = String(v).replace(/[,\s]/g, "").replace(/(백만원|천원|억원|원)$/g, "");
-  return /^-?\d+(\.\d+)?$/.test(cleaned) ? Number(cleaned) : NaN;
+  const m = String(v).replace(/[,\s]/g, "").match(/^(-?\d+(?:\.\d+)?)(조원|억원|백만원|천원|원)?$/);
+  if (!m) return NaN;
+  const MUL = { "조원": 1_000_000, "억원": 100, "백만원": 1, "천원": 1 / 1000, "원": 1 / 1_000_000 };
+  return Number(m[1]) * MUL[m[2] || "백만원"];
 };
 
 /* 3-2. 헤더 별칭 */
@@ -74,13 +78,14 @@ if (process.env.OPENFISCAL_KEY) {
     }
     console.log(`API 수신: ${rows.length}행`); /* 키는 로그에 출력하지 않음 */
   } catch (e) {
-    console.log(`API 접속 실패(${e.cause?.code || e.name}) — 해외 IP 차단 가능성. 파일 모드 데이터로 계속.`);
+    report.apiError = String(e.cause?.code || e.name);
+    console.log(`API 접속 실패(${report.apiError}) — 해외 IP 차단 가능성. 파일 모드 데이터로 계속.`);
   }
 }
 
 if (!rows.length) {
   report.mode = "file";
-  const files = fs.existsSync("data/raw") ? fs.readdirSync("data/raw").filter((f) => /\.(xlsx|tsv|csv|json)$/.test(f)) : [];
+  const files = fs.existsSync("data/raw") ? fs.readdirSync("data/raw").filter((f) => /\.(xlsx|tsv|json)$/.test(f)) : [];
   for (const f of files) {
     const fp = path.join("data/raw", f);
     if (f.endsWith(".json")) {
@@ -95,7 +100,7 @@ if (!rows.length) {
       if (!XLSX) { console.log(`xlsx 모듈 없음 — ${f} 건너뜀`); continue; }
       arr = XLSX.utils.sheet_to_json(XLSX.read(fs.readFileSync(fp)).Sheets[XLSX.read(fs.readFileSync(fp)).SheetNames[0]], { header: 1 });
     } else {
-      const sep = f.endsWith(".tsv") ? "\t" : ",";
+      const sep = "\t"; /* CSV는 필드 내 쉼표 오판 위험으로 미지원 — TSV·XLSX·JSON 사용 */
       arr = fs.readFileSync(fp, "utf8").split(/\r?\n/).map((l) => l.split(sep));
     }
     const hi = arr.findIndex((r) => r?.some?.((c) => ALIAS.name.includes(c)));
@@ -116,9 +121,12 @@ if (!rows.length) {
 report.sourceRowCount = rows.length;
 
 const prev = fs.existsSync(OUT) ? JSON.parse(fs.readFileSync(OUT, "utf8")) : {};
+report.previousLiveCount = Object.keys(prev).length;
+report.newLiveCount = report.previousLiveCount;
 
 if (!rows.length) {
-  console.log("신규 데이터 없음 — 기존 live-budgets.json 보존");
+  report.runStatus = report.apiError ? "api_failed" : "no_data";
+  console.log("신규 데이터 없음 — 기존 live-budgets.json 보존 (asOf 미변경)");
   fs.writeFileSync(REPORT, JSON.stringify(report, null, 2));
   process.exit(0);
 }
@@ -141,12 +149,16 @@ for (const [id, rule] of Object.entries(MAP)) {
 report.matchedBenefitCount = Object.keys(live).length;
 
 if (report.matchedBenefitCount === 0) {
+  report.runStatus = "no_data";
   console.log("매칭 0건 — 기존 데이터 보존, 보고서만 기록");
   fs.writeFileSync(REPORT, JSON.stringify(report, null, 2));
   process.exit(0);
 }
 
 const merged = { ...prev, ...live };
+report.runStatus = report.apiError ? "partial" : "success";
+report.didUpdateLiveBudgets = true;
+report.newLiveCount = Object.keys(merged).length;
 fs.writeFileSync(OUT, JSON.stringify(merged, null, 2));
 fs.writeFileSync(REPORT, JSON.stringify(report, null, 2));
 console.log(`갱신 ${report.matchedBenefitCount}건 / 보존 포함 총 ${Object.keys(merged).length}건`);
